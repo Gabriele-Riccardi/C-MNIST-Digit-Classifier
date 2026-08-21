@@ -1,0 +1,5 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     '/Users/gabrielericcardi/Desktop/DEV/C/Mnist_Digit_Classifier/C-MNIST-Digit-Classifier/main'
+relocations:     []
+...

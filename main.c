@@ -277,30 +277,47 @@ void shift_image(const float *src, float *dst, int rows, int cols, int dx, int d
 void train(neural_net *net, mnist_data *train_data, mnist_data *train_labels, int epochs, float learning_rate) {
     float *output  = (float*)malloc(net->output_nodes * sizeof(float));
     float *shifted = (float*)malloc(28 * 28 * sizeof(float));
-    if (!output || !shifted) { free(output); free(shifted); return; }
+    int   *order   = (int*)malloc(train_data->size * sizeof(int));
+    if (!output || !shifted || !order) { free(output); free(shifted); free(order); return; }
+
+    for (int i = 0; i < train_data->size; i++) order[i] = i;
 
     for (int epoch = 0; epoch < epochs; epoch++) {
         clock_t t0 = clock();
         float total_loss = 0.0f;
 
-        for (int i = 0; i < train_data->size; i++) {
-            int dx = (rand() % 5) - 2;
-            int dy = (rand() % 5) - 2;
-            shift_image(train_data->images[i], shifted, 28, 28, dx, dy);
+        /* Fisher-Yates: ordine diverso a ogni epoca */
+        for (int i = train_data->size - 1; i > 0; i--) {
+            int j = rand() % (i + 1);
+            int tmp = order[i]; order[i] = order[j]; order[j] = tmp;
+        }
 
-            forward_propagate_with_activation(net, shifted, output);
+        for (int n = 0; n < train_data->size; n++) {
+            int i = order[n];
+            float *sample = train_data->images[i];
+
+            /* augmentation solo sul 50% dei campioni */
+            if (rand() % 2) {
+                int dx = (rand() % 3) - 1;
+                int dy = (rand() % 3) - 1;
+                shift_image(train_data->images[i], shifted, 28, 28, dx, dy);
+                sample = shifted;
+            }
+
+            forward_propagate_with_activation(net, sample, output);
 
             int target[10] = {0};
             target[train_labels->labels[i]] = 1;
 
             total_loss += cross_entropy_loss(output, target, net->output_nodes);
-            backpropagation(net, shifted, target, output, learning_rate);
+            backpropagation(net, sample, target, output, learning_rate);
         }
 
         double secs = (double)(clock() - t0) / CLOCKS_PER_SEC;
         printf("Epoch %d in %.2f s, Loss: %f\n", epoch + 1, secs, total_loss / train_data->size);
     }
 
+    free(order);
     free(shifted);
     free(output);
 }

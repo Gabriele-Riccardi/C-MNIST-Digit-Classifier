@@ -1,0 +1,7 @@
+mnist
+mnist.exe
+main
+main.exe
+*.o
+dataset/
+network.dat

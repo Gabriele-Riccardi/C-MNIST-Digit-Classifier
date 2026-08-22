@@ -20,6 +20,9 @@ Labels: The first 8 bytes are the header, the next bytes are the labels.
 #include <math.h>
 #include <time.h>
 
+#define MAX_HIDDEN_NODES 512
+#define MAX_OUTPUT_NODES 16
+
 typedef struct {
     int size;
     int *labels;

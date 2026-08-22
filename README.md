@@ -121,7 +121,11 @@ Makefile      build and clean targets
 dataset/      MNIST IDX files (not tracked; see Requirements)
 network.dat   serialised weights (generated at runtime)
 ```
+## Roadmap
 
+- [ ] Mini-batch gradient descent instead of per-sample updates
+- [ ] Report validation accuracy per epoch to visualise the learning curve
+- [ ] Allocate the backpropagation delta buffers dynamically to support arbitrary layer widths
 ## License
 
 MIT

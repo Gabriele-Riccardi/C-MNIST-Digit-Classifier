@@ -1,7 +1,15 @@
+# build output
+build/
 mnist
 mnist.exe
-main
-main.exe
 *.o
-dataset/
+*.d
+*.dSYM/
+
+# generated at runtime
 network.dat
+runs*/
+*.tmp
+
+# not tracked: fetch with scripts/get_dataset.sh
+dataset/

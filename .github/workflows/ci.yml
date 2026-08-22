@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    name: ${{ matrix.os }} / ${{ matrix.cc }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: ubuntu-latest,  cc: gcc }
+          - { os: ubuntu-latest,  cc: clang }
+          - { os: macos-latest,   cc: clang }
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build
+        run: make CC=${{ matrix.cc }} EXTRA_CFLAGS=-Werror
+
+      # The unit tests and both gradient checks. No dataset needed: every
+      # fixture is synthesised, so this job is hermetic and fast.
+      - name: Tests and gradient check
+        run: make CC=${{ matrix.cc }} EXTRA_CFLAGS=-Werror check
+
+  sanitizers:
+    name: ASan + UBSan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tests under AddressSanitizer and UndefinedBehaviorSanitizer
+        run: make CC=clang sanitize
+
+  end-to-end:
+    name: Dataset fetch and one epoch
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: shellcheck
+        run: shellcheck scripts/*.sh
+
+      - name: Cache MNIST
+        uses: actions/cache@v4
+        with:
+          path: dataset
+          key: mnist-idx-v1
+
+      # Also the test that scripts/get_dataset.sh still works: if a mirror
+      # disappears or serves something else, the checksums fail here rather
+      # than in someone's clone.
+      - name: Fetch and verify the dataset
+        run: ./scripts/get_dataset.sh
+
+      - name: Build
+        run: make EXTRA_CFLAGS=-Werror
+
+      - name: Train one epoch and score the validation split
+        run: ./mnist train --epochs 1 --no-save

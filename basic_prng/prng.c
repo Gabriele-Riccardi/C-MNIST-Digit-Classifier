@@ -2,18 +2,6 @@
 #include <stdio.h>
 
 /**
- * @brief Uniform integer in [0, bound) with rejection sampling to remove modulo bias.
- */
-u32 prng_below(u32 bound) {
-    u32 threshold = (u32)(0x100000000ULL % (u64)bound);   /* 2^32 % bound */
-    for (;;) {
-        u32 r = prng_rand();
-        if (r >= threshold) return r % bound;
-    }
-}
-
-
-/**
  * @brief Default global PRNG state instance.
  * 
  * Used by non-reentrant wrapper functions (e.g., prng_rand(), prng_seed()).
@@ -73,6 +61,25 @@ u32 prng_rand_r(prng_state* rng) {
  */
 u32 prng_rand(void) {
     return prng_rand_r(&s_prng_state);
+}
+
+/**
+ * @brief Uniform integer in [0, bound) from a specific instance, with rejection
+ *        sampling to remove modulo bias.
+ */
+u32 prng_below_r(prng_state* rng, u32 bound) {
+    u32 threshold = (u32)(0x100000000ULL % (u64)bound);   /* 2^32 % bound */
+    for (;;) {
+        u32 r = prng_rand_r(rng);
+        if (r >= threshold) return r % bound;
+    }
+}
+
+/**
+ * @brief Uniform integer in [0, bound) with rejection sampling to remove modulo bias.
+ */
+u32 prng_below(u32 bound) {
+    return prng_below_r(&s_prng_state, bound);
 }
 
 /**

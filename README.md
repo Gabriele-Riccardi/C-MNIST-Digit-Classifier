@@ -10,14 +10,14 @@ Images and labels loaded successfully.
 Number of training images: 60000
 Number of testing images: 10000
 No existing network found. Starting from scratch.
-Epoch 1 in 25.47 s, Loss: 0.262466
-Epoch 2 in 24.98 s, Loss: 0.129491
-Epoch 3 in 24.90 s, Loss: 0.105896
+Epoch 1 in 4.94 s, Loss: 0.255523
+Epoch 2 in 4.98 s, Loss: 0.126921
+Epoch 3 in 4.75 s, Loss: 0.097708
 ...
-Epoch 19 in 24.37 s, Loss: 0.044831
-Epoch 20 in 24.16 s, Loss: 0.041747
+Epoch 19 in 4.91 s, Loss: 0.041599
+Epoch 20 in 5.04 s, Loss: 0.041329
 Network saved to network.dat.
-Accuracy on test set: 98.31%
+Accuracy on test set: 98.38%
 ```
 
 ## Why
@@ -46,6 +46,7 @@ input          hidden           output
 | Loss           | Categorical cross-entropy                           |
 | Optimiser      | Stochastic gradient descent, per-sample updates     |
 | Initialisation | Xavier/Glorot uniform, scaled per layer fan-in      |
+| RNG            | PCG-XSH-RR, fixed seed for reproducible runs        |
 | Augmentation   | Random +/-1 pixel translation, applied to ~50% of samples |
 | Default run    | 20 epochs, learning rate 0.01, shuffled each epoch  |
 
@@ -103,22 +104,31 @@ On the first run the network trains from random initialisation and writes its we
 
 | Metric              | Value       |
 | ------------------- | ----------- |
-| Test-set accuracy   | 98.31%      |
+| Test-set accuracy   | 98.38%      |
 | Test-set size       | 10,000      |
 | Training set size   | 60,000      |
-| Final training loss | 0.0417      |
+| Final training loss | 0.0413      |
 | Epochs              | 20          |
-| Time per epoch      | ~24.5 s     |
+| Time per epoch      | ~4.9 s      |
 
 ## Project layout
 
 ```
 main.c        IDX loader, network, forward/backward pass, training loop, entry point
 main.h        struct definitions, function declarations, IDX format notes
+basic_prng/   PCG-XSH-RR generator (uniform, unbiased bounded, Gaussian)
 Makefile      build and clean targets
 dataset/      MNIST IDX files (not tracked; see Requirements)
 network.dat   serialised weights (generated at runtime)
 ```
+
+## Roadmap
+
+- [x] Shuffle the training set between epochs
+- [x] Apply translation augmentation to a subset of samples rather than all of them
+- [ ] Mini-batch gradient descent instead of per-sample updates
+- [ ] Report validation accuracy per epoch to visualise the learning curve
+- [ ] Allocate the backpropagation delta buffers dynamically to support arbitrary layer widths
 
 ## License
 

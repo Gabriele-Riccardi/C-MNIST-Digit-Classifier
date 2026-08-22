@@ -77,7 +77,7 @@ make clean
 Or directly:
 
 ```
-gcc -Wall -Wextra -O2 -o mnist main.c -lm
+gcc -Wall -Wextra -O2 -Ibasic_prng -o mnist main.c basic_prng/prng.c -lm
 ```
 
 ## Usage
@@ -121,14 +121,6 @@ Makefile      build and clean targets
 dataset/      MNIST IDX files (not tracked; see Requirements)
 network.dat   serialised weights (generated at runtime)
 ```
-
-## Roadmap
-
-- [x] Shuffle the training set between epochs
-- [x] Apply translation augmentation to a subset of samples rather than all of them
-- [ ] Mini-batch gradient descent instead of per-sample updates
-- [ ] Report validation accuracy per epoch to visualise the learning curve
-- [ ] Allocate the backpropagation delta buffers dynamically to support arbitrary layer widths
 
 ## License
 

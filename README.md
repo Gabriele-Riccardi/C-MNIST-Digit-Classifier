@@ -288,6 +288,11 @@ make sanitize    # the same, under AddressSanitizer and UndefinedBehaviorSanitiz
 
 Every fixture is synthesised, so the test suite is hermetic and runs in seconds. CI builds with gcc and clang on Linux and clang on macOS at `-Wall -Wextra -Wpedantic -Werror`, runs the tests and the sanitizers, and separately fetches the dataset and trains an epoch — which is also the test that `scripts/get_dataset.sh` still works, so a mirror going dark fails in CI rather than in someone's clone.
 
+
+## AI full disclosure
+
+This software is developed with assistance from GPT 5.5, 5.6, Claude Fable and with humans leading the ideas, testing, and debugging.
+
 ## Roadmap
 
 - [x] Shuffle the training set between epochs

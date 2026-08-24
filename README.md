@@ -507,7 +507,7 @@ Every fixture is synthesised, so the test suite is hermetic and runs in seconds.
 
 ## AI full disclosure
 
-This software is developed with assistance from GPT 5.5, 5.6, Claude Fable and with humans leading the ideas, testing, and debugging.
+This software is developed with assistance from GPT 5.5, 5.6, Claude. Coding models wrote some comments and parts of the implementation, and one argued my experimental protocol into shape. I do not claim every line, but I can defend every check — and anything wrong in here is mine.
 
 ## Roadmap
 

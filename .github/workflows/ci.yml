@@ -23,9 +23,10 @@ jobs:
       - name: Build
         run: make CC=${{ matrix.cc }} EXTRA_CFLAGS=-Werror
 
-      # The unit tests and both gradient checks. No dataset needed: every
-      # fixture is synthesised, so this job is hermetic and fast.
-      - name: Tests and gradient check
+      # The unit tests, both gradient checks and both quantiser checks. No
+      # dataset needed: every fixture is synthesised, including the 784x784
+      # Hessian, so this job is hermetic and fast.
+      - name: Tests, gradient check and quantiser check
         run: make CC=${{ matrix.cc }} EXTRA_CFLAGS=-Werror check
 
   sanitizers:
@@ -61,4 +62,17 @@ jobs:
         run: make EXTRA_CFLAGS=-Werror
 
       - name: Train one epoch and score the validation split
-        run: ./mnist train --epochs 1 --no-save
+        run: ./mnist train --epochs 1 --weights ci-network.dat
+
+      # C1 and C2 again, this time on a Hessian built from the real training
+      # images rather than the synthetic stand-in the hermetic job uses.
+      - name: Cholesky and inverse on the real MNIST Hessian
+        run: make EXTRA_CFLAGS=-Werror build/quantcheck64 && ./build/quantcheck64 --data dataset
+
+      # And the quantiser end to end, so a driver that no longer runs fails here
+      # rather than the next time someone reproduces a table.
+      - name: Quantise the one-epoch network
+        run: |
+          make EXTRA_CFLAGS=-Werror quant
+          ./build/quant_sweep --weights ci-network.dat --out runs/ci \
+              --calib 256 --bits 8,4 --method rtn,gptq --no-save

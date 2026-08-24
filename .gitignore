@@ -8,6 +8,7 @@ mnist.exe
 
 # generated at runtime
 network.dat
+*.dat
 runs*/
 *.tmp
 
